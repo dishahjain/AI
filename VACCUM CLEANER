@@ -1,0 +1,39 @@
+import random
+
+def random_state():
+    # Randomly initialize a room state including 'Unknown'
+    return random.choice(['Clean', 'Dirty', 'Obstructed', 'Unknown'])
+
+def detect_room_condition():
+    # Simulate detection of an Unknown room to update its state
+    return random.choice(['Clean', 'Dirty', 'Obstructed'])
+
+def clean_room(room_index):
+    print(f"Cleaning room {room_index + 1}... Done.")
+
+def vacuum_cleaner():
+    # Initialize 4 rooms with random states
+    rooms = [random_state() for _ in range(4)]
+    print("Initial room states:", rooms)
+    
+    for i in range(4):
+        print(f"\nChecking room {i + 1} (currently {rooms[i]})")
+        
+        if rooms[i] == 'Unknown':
+            rooms[i] = detect_room_condition()
+            print(f"Detected room {i + 1} state: {rooms[i]}")
+
+        if rooms[i] == 'Dirty':
+            clean_room(i)
+            rooms[i] = 'Clean'
+        elif rooms[i] == 'Obstructed':
+            print(f"Room {i + 1} is obstructed. Skipping cleaning.")
+        else:
+            print(f"Room {i + 1} is clean. No action needed.")
+
+    print("\nFinal room states after cleaning:")
+    for i, state in enumerate(rooms, start=1):
+        print(f"Room {i}: {state}")
+
+if __name__ == "__main__":
+    vacuum_cleaner()
