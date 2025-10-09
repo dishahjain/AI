@@ -1,0 +1,72 @@
+import random
+import time
+
+def generate_initial_state(n=4):
+    return [random.randint(0, n - 1) for _ in range(n)]
+
+def calculate_conflicts(state):
+    conflicts = 0
+    n = len(state)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if state[i] == state[j]:
+                conflicts += 1
+            if abs(state[i] - state[j]) == abs(i - j):
+                conflicts += 1
+    return conflicts
+
+def get_neighbors(state):
+    neighbors = []
+    n = len(state)
+    for col in range(n):
+        for row in range(n):
+            if state[col] != row:
+                neighbor = state.copy()
+                neighbor[col] = row
+                neighbors.append(neighbor)
+    return neighbors
+
+def print_board(state):
+    n = len(state)
+    for row in range(n):
+        line = ""
+        for col in range(n):
+            if state[col] == row:
+                line += "Q "
+            else:
+                line += ". "
+        print(line)
+    print()
+
+def hill_climbing_with_steps(n=4, max_restarts=100):
+    for restart in range(max_restarts):
+        current = generate_initial_state(n)
+        step = 0
+        print(f"Restart #{restart+1}: Initial state (Conflicts = {calculate_conflicts(current)})")
+        print_board(current)
+        while True:
+            current_conflicts = calculate_conflicts(current)
+            if current_conflicts == 0:
+                print(f"Solution found in {step} steps!")
+                return current
+            neighbors = get_neighbors(current)
+            neighbor_conflicts = [calculate_conflicts(nbr) for nbr in neighbors]
+            min_conflict = min(neighbor_conflicts)
+            if min_conflict >= current_conflicts:
+                # Local minima, no better neighbors
+                print("Reached local minimum, restarting...\n")
+                break
+            # Move to best neighbor
+            best_neighbor = neighbors[neighbor_conflicts.index(min_conflict)]
+            step += 1
+            print(f"Step {step}: Conflicts = {min_conflict}")
+            print_board(best_neighbor)
+            current = best_neighbor
+    return None
+
+solution = hill_climbing_with_steps()
+if solution:
+    print("Final Solution:")
+    print_board(solution)
+else:
+    print("No solution found.")
