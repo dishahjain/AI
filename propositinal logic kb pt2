@@ -1,0 +1,60 @@
+import itertools
+import pandas as pd
+
+# Define propositions
+variables = ['P', 'Q', 'R']
+
+# Generate all possible truth assignments
+combinations = list(itertools.product([False, True], repeat=3))
+
+# Create a list to hold truth table rows
+rows = []
+
+for (P, Q, R) in combinations:
+    # Sentences in KB
+    s1 = (not Q) or P         # Q → P
+    s2 = (not P) or (not Q)   # P → ¬Q
+    s3 = Q or R               # Q ∨ R
+   
+    # Knowledge Base truth (all must be true)
+    KB = s1 and s2 and s3
+
+    # Queries
+    entail_R = R
+    entail_R_imp_P = (not R) or P
+    entail_Q_imp_R = (not Q) or R
+
+    # Store row
+    rows.append({
+        'P': P, 'Q': Q, 'R': R,
+        'Q → P': s1,
+        'P → ¬Q': s2,
+        'Q ∨ R': s3,
+        'KB True?': KB,
+        'R': entail_R,
+        'R → P': entail_R_imp_P,
+        'Q → R': entail_Q_imp_R
+    })
+
+# Convert to DataFrame for neat display
+df = pd.DataFrame(rows)
+
+# Display the truth table
+print("Truth Table for Knowledge Base:\n")
+print(df.to_string(index=False))
+
+# Models where KB is True
+models_true = df[df['KB True?'] == True]
+print("\nModels where KB is True:\n")
+print(models_true[['P', 'Q', 'R']])
+
+# Check entailments
+def entails(column):
+    """Check if KB entails the given statement."""
+    return all(models_true[column])
+
+print("\nEntailment Results:")
+print(f"KB ⊨ R ? {'Yes' if entails('R') else 'No'}")
+print(f"KB ⊨ R → P ? {'Yes' if entails('R → P') else 'No'}")
+print(f"KB ⊨ Q → R ? {'Yes' if entails('Q → R') else 'No'}")
+
